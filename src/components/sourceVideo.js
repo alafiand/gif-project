@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
 
-export default class sourceVideo extends Component {
+export default class SourceVideo extends Component {
 
 
-  
+
   render() {
     return (
       <div>

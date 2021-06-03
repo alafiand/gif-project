@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import Cropper from "cropperjs";
 import "./App.css";
+import ImageCropper from './components/ImageCropper'
+import doggie from './testGIF.gif'
 
 // installs ffmpeg packages
 import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
@@ -9,6 +10,13 @@ import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
 const ffmpeg = createFFmpeg({ log: true });
 
 function App() {
+
+  // return (
+  //   <div>
+  //     <ImageCropper src={doggie}/>
+  //   </div>
+  // )
+
   // to track loading state, property "ready" w default value of false which will be flipped once the data has been loaded
   const [ready, setReady] = useState(false);
   const [preview, setPreview] = useState();
