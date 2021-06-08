@@ -1,27 +1,24 @@
 import React, { Component } from "react";
 import Cropper from "cropperjs";
 import "cropperjs/dist/cropper.min.css";
+import { updateCropData } from "../redux/editor";
+import { connect } from "react-redux";
 
 class ImageCropper extends Component {
   constructor() {
     super();
-    this.state = {
-      x: 0,
-      y: 0,
-      width: 0,
-      height: 0,
-    };
+
     this.imageElement = React.createRef();
   }
 
   componentDidMount() {
+    console.log('THIS IS THE BLAG', this.imageElement.current)
     const cropper = new Cropper(this.imageElement.current, {
       zoomable: false,
       scalable: false,
       aspectRatio: 1,
       crop: (event) => {
-        console.log("CROPPING");
-        this.setState({
+        this.props.updateCropData({
           x: event.detail.x,
           y: event.detail.y,
           width: event.detail.width,
@@ -36,14 +33,14 @@ class ImageCropper extends Component {
       <div>
         <div className="img-container">
           <img ref={this.imageElement} src={this.props.src} alt="Source" />
-          <p>x is {this.state.x}</p>
-          <p>y is {this.state.y}</p>
-          <p>width is {this.state.width}</p>
-          <p>height is {this.state.height}</p>
         </div>
       </div>
     );
   }
 }
 
-export default ImageCropper;
+const mapDispatch = (dispatch) => ({
+  updateCropData: (cropData) => dispatch(updateCropData(cropData)),
+});
+
+export default connect(null, mapDispatch)(ImageCropper);
