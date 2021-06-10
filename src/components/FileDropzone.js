@@ -1,6 +1,6 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useDropzone } from "react-dropzone";
-import { updateGeneral } from "../redux/editor";
+
 
 const baseStyle = {
   display: "flex",
@@ -28,10 +28,12 @@ const rejectStyle = {
   borderColor: "#ff1744",
 };
 
-function FileDropzone() {
+function FileDropzone(props) {
 
   const onDrop = useCallback((acceptedFiles) => {
     console.log(URL.createObjectURL(acceptedFiles[0]));
+    console.log(`props`, props)
+    props.dropUpdate(URL.createObjectURL(acceptedFiles[0]))
   }, []);
 
   const {

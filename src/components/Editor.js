@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import ImageCropper from "./ImageCropper";
 // installs ffmpeg packages
-import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
+import { createFFmpeg } from "@ffmpeg/ffmpeg";
 import { useSelector, useDispatch } from "react-redux";
 import { generalUpdate } from "../redux/editor";
-import FileDropzone from './FileDropzone';
+import FileDropzone from "./FileDropzone";
+import generateGif from "./gifGenerator";
 // import Dropzone from "react-dropzone";
 
 //allows us to work w ffmpeg lib and logs eveything that it (ffmpeg) does
@@ -14,9 +15,18 @@ function Editor() {
   const [ready, setReady] = useState(false);
 
   //get cropping data from cropper
-  const { x, y, width, height, preview, outputGif, outputFileSize, size, startTime, clipLength } = useSelector(
-    (state) => state.editor
-  );
+  const {
+    x,
+    y,
+    width,
+    height,
+    preview,
+    outputGif,
+    outputFileSize,
+    size,
+    startTime,
+    clipLength,
+  } = useSelector((state) => state.editor);
 
   const dispatch = useDispatch();
 
@@ -29,53 +39,27 @@ function Editor() {
     load();
   }, []);
 
-  const generateGif = async (outputSize, outputDestination, vid, croppit) => {
-    //Write the video file to memory
-    ffmpeg.FS("writeFile", "test.mp4", await fetchFile(vid));
-
-    // Process the video/gif
-    await ffmpeg.run(
-      "-i", //flag for input file
-      "test.mp4", //input file
-      "-framerate", //framerate flag
-      "1/24",
-      "-ss", // flag for start time
-      `${Number(startTime)}`, //input for start time in seconds
-      "-t", // flag for time/length of the output file
-      `${Number(clipLength)}`, // length of output file is set to # seconds
-      "-vf", //flag for all the filters
-      `${
-        croppit ? `crop=${width}:${height}:${x}:${y},` : ""
-      }fps=12,scale=-1:${Number(outputSize)}`, // This is where the magic happens
-      "-f", // flag for output file type
-      "gif", // output file type is set to gif
-      "-loop", //loop flag
-      "0", // makes the output gif loop infinitely
-      "out.gif" //name of file written to memory
-    );
-
-    //Read the result
-    const data = ffmpeg.FS("readFile", "out.gif");
-
-    // update output file size variable to display size
-    if (outputDestination === 'outputGif') {
-      dispatch(generalUpdate({outputFileSize: data.length / 1000}));
-    }
-
-    //create a URL that the browser can reference
-    const url = URL.createObjectURL(
-      new Blob([data.buffer], { type: "image/gif" })
-    );
-    dispatch(
-      generalUpdate({
-        [outputDestination]: url,
-      })
-    );
-  };
-
   return ready ? (
     <div className="App">
-      <FileDropzone />
+      <FileDropzone dropUpdate={(video) => {
+        const gifProcessingDetails = {
+          startTime,
+          clipLength,
+          width,
+          height,
+          x,
+          y,
+        };
+        generateGif(
+          ffmpeg,
+          dispatch,
+          360,
+          "preview",
+          video,
+          false,
+          gifProcessingDetails
+        );
+      }}/>
       <h3>Preview</h3>
       <div>{preview && <ImageCropper />}</div>
 
@@ -83,7 +67,23 @@ function Editor() {
         <input
           type="file"
           onChange={(event) => {
-            generateGif(360, 'preview', event.target.files?.item(0), false);
+            const gifProcessingDetails = {
+              startTime,
+              clipLength,
+              width,
+              height,
+              x,
+              y,
+            };
+            generateGif(
+              ffmpeg,
+              dispatch,
+              360,
+              "preview",
+              event.target.files?.item(0),
+              false,
+              gifProcessingDetails
+            );
           }}
         />
       </div>
@@ -95,7 +95,7 @@ function Editor() {
         required
         defaultValue={size}
         onChange={(event) => {
-          dispatch(generalUpdate({size: event.target.value}));
+          dispatch(generalUpdate({ size: event.target.value }));
         }}
       ></input>
       <label htmlFor="startTime">Start Time (in seconds):</label>
@@ -106,7 +106,7 @@ function Editor() {
         required
         defaultValue={startTime}
         onChange={(event) => {
-          dispatch(generalUpdate({startTime: event.target.value}));
+          dispatch(generalUpdate({ startTime: event.target.value }));
         }}
       ></input>
       <label htmlFor="clipLength">Output Gif Length (in seconds):</label>
@@ -117,10 +117,30 @@ function Editor() {
         required
         defaultValue={Number(clipLength)}
         onChange={(event) => {
-          dispatch(generalUpdate({clipLength: event.target.value}));
+          dispatch(generalUpdate({ clipLength: event.target.value }));
         }}
       ></input>
-      <button onClick={() => generateGif(size, 'outputGif', preview, true)}>
+      <button
+        onClick={(event) => {
+          const gifProcessingDetails = {
+            startTime,
+            clipLength,
+            width,
+            height,
+            x,
+            y,
+          };
+          generateGif(
+            ffmpeg,
+            dispatch,
+            360,
+            "gifOutput",
+            preview,
+            false,
+            gifProcessingDetails
+          );
+        }}
+      >
         Convert
       </button>
       <div></div>
