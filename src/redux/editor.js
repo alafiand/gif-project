@@ -7,22 +7,25 @@ export const editorSlice = createSlice({
     y: 0,
     width: 200,
     height: 200,
-    preview: ''
+    preview: '',
+    outputGif: '',
+    inputVideo: '',
+    outputFileSize: 0,
+    size: 80,
+    startTime: 0,
+    clipLength: 3
   },
   reducers: {
-    updateCropData: (state, action) => {
-      state.x = action.payload.x;
-      state.y = action.payload.y;
-      state.width = action.payload.width;
-      state.height = action.payload.height;
+    generalUpdate: (state, action) => {
+      for (let key in action.payload) {
+        state[key] = action.payload[key]
+      }
     },
-    updatePreview: (state, action) => {
-      state.preview = action.payload.preview
-    }
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { updateCropData, updatePreview } = editorSlice.actions;
+export const { generalUpdate } = editorSlice.actions;
+
 
 export default editorSlice.reducer;
