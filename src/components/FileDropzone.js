@@ -11,8 +11,8 @@ const baseStyle = {
   borderRadius: 2,
   borderColor: "#eeeeee",
   borderStyle: "dashed",
-  backgroundColor: "#fafafa",
-  color: "#bdbdbd",
+  backgroundColor: "#b9adf0",
+  color: "#47324e",
   transition: "border .3s ease-in-out",
 };
 
@@ -21,7 +21,7 @@ const activeStyle = {
 };
 
 const acceptStyle = {
-  borderColor: "#00e676",
+  borderColor: "#8c54a4",
 };
 
 const rejectStyle = {
@@ -31,8 +31,6 @@ const rejectStyle = {
 function FileDropzone(props) {
 
   const onDrop = useCallback((acceptedFiles) => {
-    console.log(URL.createObjectURL(acceptedFiles[0]));
-    console.log(`props`, props)
     props.dropUpdate(URL.createObjectURL(acceptedFiles[0]))
   }, []);
 
@@ -60,8 +58,8 @@ function FileDropzone(props) {
   return (
     <div {...getRootProps({ style })}>
       <input {...getInputProps()} />
-      <div>Drag and drop your videos here,</div>
-      <div>or double click to select a video</div>
+      <div className="dropper-text">Drag and drop your videos here,</div>
+      <div className="dropper-text">or click to select a video</div>
     </div>
   );
 }
